@@ -29,6 +29,22 @@ jobs:
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager.bat "ndk;29.0.13113456" "platforms;android-36" "build-tools;36.0.0"
           
+      # Устанавливаем правильную версию Gradle
+      - name: Setup Gradle 8.14.3
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.14.3
+
+      # Принудительно меняем версию в конфигурации проекта, если скрипт использует обертку ./gradlew
+      - name: Fix Gradle Wrapper Version
+        shell: pwsh
+        working-directory: mobile/android
+        run: |
+          $wrapperFile = "gradle/wrapper/gradle-wrapper.properties"
+          if (Test-Path $wrapperFile) {
+            (Get-Content $wrapperFile) -replace 'distributionUrl=.*', 'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip' | Set-Content $wrapperFile
+          }
+          
       - name: Build
         working-directory: mobile/android
         run: pwsh -File tools/build-account-apk.ps1
