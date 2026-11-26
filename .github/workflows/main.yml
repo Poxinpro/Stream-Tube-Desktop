@@ -16,14 +16,20 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,x86_64-linux-android
+          
+      - name: Install cargo-ferry
+        run: cargo install cargo-ferry --version 0.1.0
+
       - name: Install NDK
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;29.0.13113456" "platforms;android-36" "build-tools;36.0.0"
+          
       - name: Build
         working-directory: mobile/android
         run: |
           chmod +x tools/build-account-apk.ps1
           pwsh -File tools/build-account-apk.ps1
+          
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
